@@ -1,24 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Singin } from './components/Singin';
 import './App.scss';
-import { Switch, Link, Route } from 'react-router-dom';
+import { UserPage } from './components/UserPage';
 
-export const App = () => (
-  <div>
-    React starter pack
-    <div>
-      <nav className="nav">
-        <Link to="/">Home</Link>
-        <Link to="/users">Users</Link>
-      </nav>
+export const App = () => {
+  const [newUser, setNewUser] = useState([]);
+  const [userId, setUserId] = useState('');
+  const [user, setUser] = useState(null);
 
-      <Switch>
-        <Route path="/users">
-          <div>Users page</div>
-        </Route>
-        <Route path="/">
-          <div>Home page</div>
-        </Route>
-      </Switch>
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('user') || '[]');
+
+    setNewUser(saved);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('user', JSON.stringify(newUser));
+  }, [newUser]);
+
+  useEffect(() => {
+    const find = newUser.find(person => person.id === userId);
+
+    setUser(find);
+  }, [userId]);
+
+  return (
+    <div className="content">
+      {!user && (
+        <Singin
+          setNewUser={setNewUser}
+          newUser={newUser}
+          setUserId={setUserId}
+        />
+      )}
+
+      {user && (
+        <UserPage user={user} />
+      )}
     </div>
-  </div>
-);
+  );
+};
